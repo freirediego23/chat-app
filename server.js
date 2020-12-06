@@ -4,13 +4,14 @@ const server = require('http').Server(app)
 const io = require('socket.io')(server)
 
 
-
+//ROUTING PATHS
 app.set('views', './views')
 app.set('view engine', 'ejs')
 app.use(express.static('public'))
 app.use(express.urlencoded({ extended: true }))
 
 const rooms = { }
+
 
 app.get('/', (req, res) => {
   res.render('index', { rooms: rooms })
@@ -26,6 +27,7 @@ app.post('/room', (req, res) => {
   io.emit('room-created', req.body.room)
 })
 
+
 app.get('/:room', (req, res) => {
   if (rooms[req.params.room] == null) {
     return res.redirect('/')
@@ -35,6 +37,8 @@ app.get('/:room', (req, res) => {
 
 server.listen(process.env.PORT || 3000)
 
+//Displays a warning that a new user has connected along with his name
+//It also broadcasts messages of connected users, messages sent, and disconnected users for all other users
 io.on('connection', socket => {
   socket.on('new-user', (room, name) => {
     socket.join(room)
@@ -51,6 +55,7 @@ io.on('connection', socket => {
     })
   })
 })
+
 
 function getUserRooms(socket) {
   return Object.entries(rooms).reduce((names, [name, room]) => {
